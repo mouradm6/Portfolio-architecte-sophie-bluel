@@ -194,7 +194,22 @@ if (token) {
       deleteAllProjects(projectIdsToDelete);
     });
     
-    // Function to delete all projects one by one
+    
+
+    const modal = document.getElementById("modal");
+    modal.innerHTML = ""; 
+    modal.appendChild(closeButton);
+    modal.appendChild(h3Title);
+    modal.appendChild(divProject);
+    modal.appendChild(hrLine);
+    divBtnPhoto.appendChild(addButton);
+    divBtnPhoto.appendChild(deleteButton);
+    modal.appendChild(divBtnPhoto);
+
+    document.querySelector(".containerProject").innerHTML = "";
+    genererCarteTraveauxModal(work);
+  }
+  // Function to delete all projects one by one
     function deleteAllProjects(projectIds) {
       const deletePromises = projectIds.map(projectId =>
         fetch(`http://localhost:5678/api/works/${projectId}`, {
@@ -224,20 +239,6 @@ if (token) {
           console.error('An error occurred while deleting projects.', error);
         });
     }
-
-    const modal = document.getElementById("modal");
-    modal.innerHTML = ""; 
-    modal.appendChild(closeButton);
-    modal.appendChild(h3Title);
-    modal.appendChild(divProject);
-    modal.appendChild(hrLine);
-    divBtnPhoto.appendChild(addButton);
-    divBtnPhoto.appendChild(deleteButton);
-    modal.appendChild(divBtnPhoto);
-
-    document.querySelector(".containerProject").innerHTML = "";
-    genererCarteTraveauxModal(work);
-  }
   
   // ouvrir la modal
   function openModal() {
