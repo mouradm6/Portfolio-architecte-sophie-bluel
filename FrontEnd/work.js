@@ -1,7 +1,6 @@
-//import { loginTest } from "./login.js";
 const reponse = await fetch("http://localhost:5678/api/works");
 const work = await reponse.json();
-//loginTest();
+
 // generer toutes les cartes
 function genererCarteTraveaux(work) {
   for (let i = 0; i < work.length; i++) {
@@ -42,6 +41,7 @@ function genererCarteTraveauxModal(work) {
     const iconElement = document.createElement("i");
     iconElement.className = "fa-solid fa-trash-can fa-2xs delete-icon";
     iconElement.setAttribute("data-id", carte.id);
+    iconElement.setAttribute("type", "button");
 
     const titleElement = document.createElement("figcaption");
     titleElement.textContent = "éditer";
@@ -99,7 +99,6 @@ publishButton.addEventListener("click", function () {
   window.location.href = "index.html";
 });
 
-//login access
 //localStorage.removeItem('token');
 const token = localStorage.getItem("token");
 const editButton = document.getElementById("editButton");
@@ -116,59 +115,98 @@ if (token) {
   const modal = document.getElementById("modal");
   const backgroundElements = document.querySelectorAll("body > *:not(.modal)");
   const overlay = document.getElementById("overlay");
+
+  // creer modal 1
+  function createModal() {
+    const closeButton = document.createElement("i");
+    closeButton.setAttribute("id", "closeButton");
+    closeButton.classList.add("fa-solid", "fa-xmark", "fa-xl");
+    closeButton.addEventListener("click", closeModal);
+
+    const h3Title = document.createElement("h3");
+    h3Title.classList.add("titre");
+    h3Title.textContent = "Gallerie photo";
+
+
+
+
+
+
+
+
+    const divProject = document.createElement("div");
+    divProject.setAttribute("id", "project");
+    divProject.classList.add("containerProject");
+    divProject.addEventListener("click", async function (event) {
+      if (event.target.classList.contains("delete-icon")) {
+        event.preventDefault();
+        event.stopPropagation(); 
+        const idToDelete = event.target.dataset.id;
+        try {
+          await fetch(`http://localhost:5678/api/works/${idToDelete}`, {
+            method: "DELETE",
+            headers: {
+              Accept: "*/*",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        } catch (error) {
+          console.error("Error occurred while deleting project:", error);
+        }
+      }
+    });
+
+
+
+
+
+
+
+    const hrLine = document.createElement("hr");
+    hrLine.classList.add("line");
+
+    const divBtnPhoto = document.createElement("div");
+    divBtnPhoto.classList.add("btn-photo");
+
+    const addButton = document.createElement("button");
+    addButton.setAttribute("id", "add-btn");
+    addButton.classList.add("add-btn");
+    addButton.setAttribute("type", "submit");
+    addButton.textContent = "Ajouter une photo";
+    addButton.addEventListener("click", createModal2);
+
+    const deleteButton = document.createElement("button");
+    deleteButton.classList.add("delete-btn");
+    deleteButton.setAttribute("type", "button");
+    deleteButton.textContent = "Supprimer la galerie";
+
+    const modal = document.getElementById("modal");
+    modal.innerHTML = ""; 
+    modal.appendChild(closeButton);
+    modal.appendChild(h3Title);
+    modal.appendChild(divProject);
+    modal.appendChild(hrLine);
+    divBtnPhoto.appendChild(addButton);
+    divBtnPhoto.appendChild(deleteButton);
+    modal.appendChild(divBtnPhoto);
+
+    document.querySelector(".containerProject").innerHTML = "";
+    genererCarteTraveauxModal(work);
+  }
+  
   // ouvrir la modal
   function openModal() {
     modal.style.display = "flex";
     overlay.style.display = "block";
-    modal.innerHTML = `
-         <i id="closeButton" class="fa-solid fa-xmark fa-xl"></i>
-         <h3 class="titre">Gallerie photo</h3>
-         <div id="project" class="containerProject">
- 
-         </div>
-         <hr class="line">
-         <div class="btn-photo">
-             <button id="add-btn" class="add-btn" type="submit">Ajouter une photo</button>
-             <button class="delete-btn" type="button">Supprimer la galerie</button>
-         </div>
-    `;
-    document.querySelector(".containerProject").innerHTML = "";
-    genererCarteTraveauxModal(work);
+    createModal();
+    modal.style.pointerEvents = "auto";
     for (const element of backgroundElements) {
-      element.style.pointerEvents = "none";
-    }
-    const closeButton = document.getElementById("closeButton");
-    if (closeButton) {
-      closeButton.addEventListener("click", closeModal);
-    }
-    const addButton = document.getElementById("add-btn");
-    if (addButton) {
-      addButton.addEventListener("click", genererModal2);
-    }
-
-     // suprimer un projet
-    const projectsContainer = document.getElementById("project");
-    if(projectsContainer){
-        projectsContainer.addEventListener("click", function (event) {
-            if (event.target.classList.contains("delete-icon")) {
-              event.preventDefault();
-              const idToDelete = event.target.dataset.id;
-              fetch(`http://localhost:5678/api/works/${idToDelete}`, {
-                method: "DELETE",
-                headers: {
-                  Accept: "*/*",
-                  Authorization: `Bearer ${token}`,
-                },
-              });
-            }
-          });
+      if (!element.classList.contains("modal")) {
+        element.style.pointerEvents = "none";
+      }
     }
   }
   editButton2.addEventListener("click", openModal);
-
-
-
-
 
   //fermer la modal
   function closeModal() {
@@ -178,102 +216,147 @@ if (token) {
       element.style.pointerEvents = "auto";
     }
   }
+  // creer modal 2
+  function createModal2() {
+    const backButton = document.createElement("i");
+    backButton.setAttribute("id", "backButton");
+    backButton.classList.add("fa-solid", "fa-arrow-left", "fa-xl");
+    backButton.addEventListener("click", openModal);
 
-  // aller a la deuxieme modal
+    const closeButton = document.createElement("i");
+    closeButton.setAttribute("id", "closeButton");
+    closeButton.classList.add("fa-solid", "fa-xmark", "fa-xl");
+    closeButton.addEventListener("click", closeModal);
 
-  function genererModal2() {
-    modal.innerHTML = `
-        <i id="backButton" class="fa-solid fa-arrow-left fa-xl"></i>
-        <i id="closeButton" class="fa-solid fa-xmark fa-xl"></i>
-        <h3 class="titre">Ajout photo</h3>
-        <div id="ajout-photo" class="ajout-photo">
-          <img src="./assets/icons/picture.svg" alt="ajout photo" class="image1">
-          <button id="addPhoto" class="add-photo-btn ">+ Ajouter photo</button>
-          <input type="file" id="fileInput" style="display: none;">
-          <p class="description">jpg, png : 4mo max</p>
-        </div>
-        <div class="titre-ajout">
-          <label>Titre</label>
-          <input type="text">
-        </div>
-        <div class="cat-ajout">
-          <label>Catégorie</label>
-          <select id="menu" name="menu">
-            <option value="" disabled selected hidden></option>
-            <option value="1">Objets</option>
-            <option value="2">Appartements</option>
-            <option value="3">Hotels & restaurants</option>
-          </select>
-        </div>
-        <hr class="line">
-        <div class="btn-photo">
-            <button id="submitButton" class="add-btn" type="submit">Valider</button>
-        </div>
-        `;
-        // close modal
-    const closeButton2 = document.getElementById("closeButton");
-    if (closeButton2) {
-      closeButton2.addEventListener("click", closeModal);
-    }
-// back to modal 1 
-    const backButton = document.getElementById("backButton");
-    if (backButton) {
-      backButton.addEventListener("click", openModal);
-    }
+    const h3Title = document.createElement("h3");
+    h3Title.classList.add("titre");
+    h3Title.textContent = "Ajout photo";
 
-    // add photo 
-    const addPhoto = document.getElementById("addPhoto");
-    const fileInput = document.getElementById('fileInput');
-    if (addPhoto) {
-      addPhoto.addEventListener("click", function() {
-        fileInput.click();
+    const divAjoutPhoto = document.createElement("div");
+    divAjoutPhoto.setAttribute("id", "ajout-photo");
+    divAjoutPhoto.classList.add("ajout-photo");
+
+    const image = document.createElement("img");
+    image.setAttribute("src", "./assets/icons/picture.svg");
+    image.setAttribute("alt", "ajout photo");
+    image.classList.add("image1");
+
+    const addPhotoButton = document.createElement("button");
+    addPhotoButton.setAttribute("id", "addPhoto");
+    addPhotoButton.classList.add("add-photo-btn");
+    addPhotoButton.textContent = "+ Ajouter photo";
+    addPhotoButton.addEventListener("click", function () {
+      fileInput.click();
+    });
+
+    const fileInput = document.createElement("input");
+    fileInput.setAttribute("type", "file");
+    fileInput.setAttribute("id", "fileInput");
+    fileInput.style.display = "none";
+    fileInput.addEventListener("change", function (event) {
+      const selectedFile = event.target.files[0];
+      if (selectedFile) {
+        const imageURL = URL.createObjectURL(selectedFile);
+        const background = document.getElementById("ajout-photo");
+        if (background) {
+          background.style.backgroundImage = `url(${imageURL})`;
+          document.querySelector(".image1").style.display = "none";
+          document.querySelector(".add-photo-btn").style.display = "none";
+          document.querySelector(".description").style.display = "none";
+        }
+      }
+    });
+
+    const descriptionParagraph = document.createElement("p");
+    descriptionParagraph.classList.add("description");
+    descriptionParagraph.textContent = "jpg, png : 4mo max";
+
+    const divTitreAjout = document.createElement("div");
+    divTitreAjout.classList.add("titre-ajout");
+
+    const titreLabel = document.createElement("label");
+    titreLabel.textContent = "Titre";
+
+    const titreInput = document.createElement("input");
+    titreInput.setAttribute("type", "text");
+
+    const divCatAjout = document.createElement("div");
+    divCatAjout.classList.add("cat-ajout");
+
+    const catLabel = document.createElement("label");
+    catLabel.textContent = "Catégorie";
+
+    const selectMenu = document.createElement("select");
+    selectMenu.setAttribute("id", "menu");
+    selectMenu.setAttribute("name", "menu");
+
+    const option1 = document.createElement("option");
+    option1.setAttribute("value", "1");
+    option1.textContent = "Objets";
+
+    const option2 = document.createElement("option");
+    option2.setAttribute("value", "2");
+    option2.textContent = "Appartements";
+
+    const option3 = document.createElement("option");
+    option3.setAttribute("value", "3");
+    option3.textContent = "Hotels & restaurants";
+
+    const hrLine = document.createElement("hr");
+    hrLine.classList.add("line");
+
+    const divBtnPhoto = document.createElement("div");
+    divBtnPhoto.classList.add("btn-photo");
+
+    const submitButton = document.createElement("button");
+    submitButton.setAttribute("id", "submitButton");
+    submitButton.classList.add("add-btn");
+    submitButton.setAttribute("type", "submit");
+    submitButton.textContent = "Valider";
+    submitButton.addEventListener("click", function () {
+      const file = fileInput.files[0];
+      const title = titreInput.value;
+      const category = selectMenu.value;
+
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("title", title);
+      formData.append("category", category);
+
+      const headers = new Headers({
+        Authorization: `Bearer ${token}`,
       });
-    }
-    if(fileInput){
-        fileInput.addEventListener('change', function(event) {
-            const selectedFile = event.target.files[0];
-            if (selectedFile) {
-                const imageURL = URL.createObjectURL(selectedFile);
-                const background = document.getElementById("ajout-photo");
-                if(background){
-                    background.style.backgroundImage = `url(${imageURL})`;
-                    document.querySelector('.image1').style.display="none";
-                    document.querySelector('.add-photo-btn').style.display="none";
-                    document.querySelector('.description').style.display="none";
-                }
-                console.log('Selected image URL:', imageURL);
-            }
-          });
-    }
-// button valider
+      const requestOptions = {
+        method: "POST",
+        headers: headers,
+        body: formData,
+      };
 
-    const submitButton = document.getElementById("submitButton");
-    if (submitButton) {
-      submitButton.addEventListener("click", submitData);
-    }
+      fetch("http://localhost:5678/api/works", requestOptions);
+    });
+
+    
+    const modal = document.getElementById("modal");
+    modal.innerHTML = ""; 
+    modal.appendChild(backButton);
+    modal.appendChild(closeButton);
+    modal.appendChild(h3Title);
+    divAjoutPhoto.appendChild(image);
+    divAjoutPhoto.appendChild(addPhotoButton);
+    divAjoutPhoto.appendChild(fileInput);
+    divAjoutPhoto.appendChild(descriptionParagraph);
+    modal.appendChild(divAjoutPhoto);
+    divTitreAjout.appendChild(titreLabel);
+    divTitreAjout.appendChild(titreInput);
+    modal.appendChild(divTitreAjout);
+    divCatAjout.appendChild(catLabel);
+    selectMenu.appendChild(option1);
+    selectMenu.appendChild(option2);
+    selectMenu.appendChild(option3);
+    divCatAjout.appendChild(selectMenu);
+    modal.appendChild(divCatAjout);
+    modal.appendChild(hrLine);
+    divBtnPhoto.appendChild(submitButton);
+    modal.appendChild(divBtnPhoto);
   }
-
-  function submitData() {
-    const imageUrl = document.querySelector('#fileInput').value;
-    const titre = document.querySelector(".titre-ajout input").value;
-    const menu = document.getElementById("menu").value;
-
-    const form ={
-        title: titre,
-        imageUrl: imageUrl,
-        categoryId : menu,
-    };
-    const chargeUtile = JSON.stringify(form);
-    console.log(chargeUtile);
-    fetch('http://localhost:5678/api/works', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
-  },
-  body: chargeUtile
-})
-  }
-
-  // revenir a la premiere modal
 }
