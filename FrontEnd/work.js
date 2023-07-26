@@ -115,52 +115,95 @@ if (token) {
   const modal = document.getElementById("modal");
   const backgroundElements = document.querySelectorAll("body > *:not(.modal)");
   const overlay = document.getElementById("overlay");
+
+  // creer modal 1
+  function createModal() {
+    const closeButton = document.createElement("i");
+    closeButton.setAttribute("id", "closeButton");
+    closeButton.classList.add("fa-solid", "fa-xmark", "fa-xl");
+    closeButton.addEventListener("click", closeModal);
+
+    const h3Title = document.createElement("h3");
+    h3Title.classList.add("titre");
+    h3Title.textContent = "Gallerie photo";
+
+
+
+
+
+
+
+
+    const divProject = document.createElement("div");
+    divProject.setAttribute("id", "project");
+    divProject.classList.add("containerProject");
+    divProject.addEventListener("click", async function (event) {
+      if (event.target.classList.contains("delete-icon")) {
+        event.preventDefault();
+        event.stopPropagation(); 
+        const idToDelete = event.target.dataset.id;
+        try {
+          await fetch(`http://localhost:5678/api/works/${idToDelete}`, {
+            method: "DELETE",
+            headers: {
+              Accept: "*/*",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        } catch (error) {
+          console.error("Error occurred while deleting project:", error);
+        }
+      }
+    });
+
+
+
+
+
+
+
+    const hrLine = document.createElement("hr");
+    hrLine.classList.add("line");
+
+    const divBtnPhoto = document.createElement("div");
+    divBtnPhoto.classList.add("btn-photo");
+
+    const addButton = document.createElement("button");
+    addButton.setAttribute("id", "add-btn");
+    addButton.classList.add("add-btn");
+    addButton.setAttribute("type", "submit");
+    addButton.textContent = "Ajouter une photo";
+    addButton.addEventListener("click", createModal2);
+
+    const deleteButton = document.createElement("button");
+    deleteButton.classList.add("delete-btn");
+    deleteButton.setAttribute("type", "button");
+    deleteButton.textContent = "Supprimer la galerie";
+
+    const modal = document.getElementById("modal");
+    modal.innerHTML = ""; 
+    modal.appendChild(closeButton);
+    modal.appendChild(h3Title);
+    modal.appendChild(divProject);
+    modal.appendChild(hrLine);
+    divBtnPhoto.appendChild(addButton);
+    divBtnPhoto.appendChild(deleteButton);
+    modal.appendChild(divBtnPhoto);
+
+    document.querySelector(".containerProject").innerHTML = "";
+    genererCarteTraveauxModal(work);
+  }
+  
   // ouvrir la modal
   function openModal() {
     modal.style.display = "flex";
     overlay.style.display = "block";
-    modal.innerHTML = `
-         <i id="closeButton" class="fa-solid fa-xmark fa-xl"></i>
-         <h3 class="titre">Gallerie photo</h3>
-         <div id="project" class="containerProject">
- 
-         </div>
-         <hr class="line">
-         <div class="btn-photo">
-             <button id="add-btn" class="add-btn" type="submit">Ajouter une photo</button>
-             <button class="delete-btn" type="button">Supprimer la galerie</button>
-         </div>
-    `;
-    document.querySelector(".containerProject").innerHTML = "";
-    genererCarteTraveauxModal(work);
+    createModal();
+    modal.style.pointerEvents = "auto";
     for (const element of backgroundElements) {
-      element.style.pointerEvents = "none";
-    }
-    const closeButton = document.getElementById("closeButton");
-    if (closeButton) {
-      closeButton.addEventListener("click", closeModal);
-    }
-    const addButton = document.getElementById("add-btn");
-    if (addButton) {
-      addButton.addEventListener("click", genererModal2);
-    }
-
-     // suprimer un projet
-    const projectsContainer = document.getElementById("project");
-    if(projectsContainer){
-        projectsContainer.addEventListener("click", function (event) {
-            if (event.target.classList.contains("delete-icon")) {
-              event.preventDefault();
-              const idToDelete = event.target.dataset.id;
-              fetch(`http://localhost:5678/api/works/${idToDelete}`, {
-                method: "DELETE",
-                headers: {
-                  Accept: "*/*",
-                  Authorization: `Bearer ${token}`,
-                },
-              });
-            }
-          });
+      if (!element.classList.contains("modal")) {
+        element.style.pointerEvents = "none";
+      }
     }
   }
   editButton2.addEventListener("click", openModal);
