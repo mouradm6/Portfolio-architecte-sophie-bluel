@@ -64,7 +64,6 @@ boutonTous.addEventListener("click", function () {
 });
 // boutton1
 const bouton1 = document.querySelector(".button1");
-
 bouton1.addEventListener("click", function () {
   const work1 = work.filter(function (work) {
     return work.categoryId == 1;
@@ -140,7 +139,7 @@ if (token) {
     divProject.addEventListener("click", async function (event) {
       if (event.target.classList.contains("delete-icon")) {
         event.preventDefault();
-        event.stopPropagation(); 
+        //event.stopPropagation(); 
         const idToDelete = event.target.dataset.id;
         try {
           await fetch(`http://localhost:5678/api/works/${idToDelete}`, {
@@ -179,6 +178,52 @@ if (token) {
     deleteButton.classList.add("delete-btn");
     deleteButton.setAttribute("type", "button");
     deleteButton.textContent = "Supprimer la galerie";
+    deleteButton.addEventListener("click", () => {
+      const allProjectButtons = document.querySelectorAll('.delete-icon');
+      const projectIdsToDelete = [];
+    
+      // Extract the project IDs from the buttons associated with each project
+      allProjectButtons.forEach(button => {
+        const projectId = button.dataset.id;
+        if (projectId) {
+          projectIdsToDelete.push(projectId);
+        }
+      });
+    
+      // Delete projects one by one
+      deleteAllProjects(projectIdsToDelete);
+    });
+    
+    // Function to delete all projects one by one
+    function deleteAllProjects(projectIds) {
+      const deletePromises = projectIds.map(projectId =>
+        fetch(`http://localhost:5678/api/works/${projectId}`, {
+          method: "DELETE",
+            headers: {
+              Accept: "*/*",
+              Authorization: `Bearer ${token}`,
+          },
+        })
+      );
+    
+      // Wait for all delete requests to complete
+      Promise.all(deletePromises)
+        .then(responses => {
+          // Check if all responses were successful
+          const allSuccessful = responses.every(response => response.ok);
+    
+          if (allSuccessful) {
+            console.log('All projects were deleted.');
+            // Perform any other required UI updates
+          } else {
+            console.error('Failed to delete all projects.');
+          }
+        })
+        .catch(error => {
+          // Handle any network or other errors
+          console.error('An error occurred while deleting projects.', error);
+        });
+    }
 
     const modal = document.getElementById("modal");
     modal.innerHTML = ""; 

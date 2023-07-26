@@ -615,7 +615,6 @@ color: #ffffff;
   border: none;
   margin-bottom: 50px;
   padding-right: 20px;
-  -webkit-appearance: none;
   background-image: url("./icons/arrow.svg");
   background-repeat: no-repeat;
   background-position: right center;
