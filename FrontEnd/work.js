@@ -1,7 +1,6 @@
-//import { loginTest } from "./login.js";
 const reponse = await fetch("http://localhost:5678/api/works");
 const work = await reponse.json();
-//loginTest();
+
 // generer toutes les cartes
 function genererCarteTraveaux(work) {
   for (let i = 0; i < work.length; i++) {
@@ -99,7 +98,6 @@ publishButton.addEventListener("click", function () {
   window.location.href = "index.html";
 });
 
-//login access
 //localStorage.removeItem('token');
 const token = localStorage.getItem("token");
 const editButton = document.getElementById("editButton");
@@ -119,7 +117,6 @@ if (token) {
 
   // creer modal 1
   function createModal() {
-    // Create elements
     const closeButton = document.createElement("i");
     closeButton.setAttribute("id", "closeButton");
     closeButton.classList.add("fa-solid", "fa-xmark", "fa-xl");
@@ -151,9 +148,8 @@ if (token) {
     deleteButton.setAttribute("type", "button");
     deleteButton.textContent = "Supprimer la galerie";
 
-    // Append elements to their parent
     const modal = document.getElementById("modal");
-    modal.innerHTML = ""; // Clear any existing content
+    modal.innerHTML = ""; 
     modal.appendChild(closeButton);
     modal.appendChild(h3Title);
     modal.appendChild(divProject);
@@ -195,7 +191,6 @@ if (token) {
 
   //fermer la modal
   function closeModal() {
-    event.preventDefault();
     modal.style.display = "none";
     overlay.style.display = "none";
     for (const element of backgroundElements) {
@@ -204,8 +199,6 @@ if (token) {
   }
   // creer modal 2
   function createModal2() {
-    event.preventDefault();
-    // Create elements
     const backButton = document.createElement("i");
     backButton.setAttribute("id", "backButton");
     backButton.classList.add("fa-solid", "fa-arrow-left", "fa-xl");
@@ -323,9 +316,9 @@ if (token) {
       fetch("http://localhost:5678/api/works", requestOptions);
     });
 
-    // Append elements to their parent
+    
     const modal = document.getElementById("modal");
-    modal.innerHTML = ""; // Clear any existing content
+    modal.innerHTML = ""; 
     modal.appendChild(backButton);
     modal.appendChild(closeButton);
     modal.appendChild(h3Title);
@@ -347,7 +340,4 @@ if (token) {
     divBtnPhoto.appendChild(submitButton);
     modal.appendChild(divBtnPhoto);
   }
-
-
-  // revenir a la premiere modal
 }
