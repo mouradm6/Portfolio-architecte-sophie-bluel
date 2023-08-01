@@ -1,5 +1,6 @@
 const reponse = await fetch("http://localhost:5678/api/works");
-const work = await reponse.json();
+let work = [];
+work = await reponse.json();
 
 // generer toutes les cartes
 function genererCarteTraveaux(work) {
@@ -7,6 +8,8 @@ function genererCarteTraveaux(work) {
     const carte = work[i];
     const gallery = document.querySelector(".gallery");
     const carteElement = document.createElement("figure");
+    carteElement.setAttribute("id", 'figure'+carte.id);
+
 
     const imageElement = document.createElement("img");
     imageElement.src = carte.imageUrl;
@@ -25,11 +28,14 @@ genererCarteTraveaux(work);
 
 //generer les projet dans la modal
 function genererCarteTraveauxModal(work) {
+  //const projectContainerModal = document.querySelector(".containerProject");
+  //projectContainerModal.innerHTML = '';
   for (let i = 0; i < work.length; i++) {
     const carte = work[i];
     const gallery = document.querySelector(".containerProject");
     const carteElement = document.createElement("figure");
     carteElement.className = "figure";
+    carteElement.setAttribute("id", 'figureModal'+carte.id);
 
     const imageDiv = document.createElement("div");
     imageDiv.className = "photo-container";
@@ -127,12 +133,6 @@ if (token) {
     h3Title.textContent = "Gallerie photo";
 
 
-
-
-
-
-
-
     const divProject = document.createElement("div");
     divProject.setAttribute("id", "project");
     divProject.classList.add("containerProject");
@@ -148,7 +148,18 @@ if (token) {
               Accept: "*/*",
               Authorization: `Bearer ${token}`,
             },
-          });
+          }).then(response => {
+            // Handle the response and update the UI as needed
+            if (response.ok) {
+              // Project was deleted successfully, update the UI in the modal
+              const projectElement = document.querySelector(`#figure${idToDelete}`);
+              projectElement.remove();
+              const projectElement2 = document.querySelector(`#figureModal${idToDelete}`);
+              projectElement2.remove();
+              work = work.filter(work => work.id !== idToDelete);
+
+            }
+           }) ;
         } catch (error) {
           console.error("Error occurred while deleting project:", error);
         }
@@ -230,6 +241,7 @@ if (token) {
           if (allSuccessful) {
             console.log('All projects were deleted.');
             // Perform any other required UI updates
+            
           } else {
             console.error('Failed to delete all projects.');
           }
@@ -363,7 +375,6 @@ if (token) {
       const file = fileInput.files[0];
       const title = titreInput.value;
       const category = selectMenu.value;
-
       const formData = new FormData();
       formData.append("image", file);
       formData.append("title", title);
@@ -378,7 +389,21 @@ if (token) {
         body: formData,
       };
 
-      fetch("http://localhost:5678/api/works", requestOptions);
+      fetch("http://localhost:5678/api/works", requestOptions)
+      .then(reponse => reponse.json())
+      .then(data => {
+        const newproject = data;
+        work.push(newproject);
+        updatePageContent();
+        //openModal();
+        
+      });
+
+      function updatePageContent(){
+        const gallery = document.querySelector(".gallery");
+        gallery.innerHTML = '';
+        genererCarteTraveaux(work);
+      }
     });
 
     
