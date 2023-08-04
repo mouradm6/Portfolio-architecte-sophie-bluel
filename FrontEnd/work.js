@@ -1,6 +1,5 @@
 const reponse = await fetch("http://localhost:5678/api/works");
-let work = [];
-work = await reponse.json();
+let work = await reponse.json();
 
 // generer toutes les cartes
 function genererCarteTraveaux(work) {
@@ -28,8 +27,6 @@ genererCarteTraveaux(work);
 
 //generer les projet dans la modal
 function genererCarteTraveauxModal(work) {
-  //const projectContainerModal = document.querySelector(".containerProject");
-  //projectContainerModal.innerHTML = '';
   for (let i = 0; i < work.length; i++) {
     const carte = work[i];
     const gallery = document.querySelector(".containerProject");
@@ -104,7 +101,6 @@ publishButton.addEventListener("click", function () {
   window.location.href = "index.html";
 });
 
-//localStorage.removeItem('token');
 const token = localStorage.getItem("token");
 const editButton = document.getElementById("editButton");
 const editButton2 = document.getElementById("editButton2");
@@ -136,13 +132,14 @@ if (token) {
     const divProject = document.createElement("div");
     divProject.setAttribute("id", "project");
     divProject.classList.add("containerProject");
-    divProject.addEventListener("click", async function (event) {
+
+    //deleteProject
+    divProject.addEventListener("click",  function (event) {
       if (event.target.classList.contains("delete-icon")) {
         event.preventDefault();
-        //event.stopPropagation(); 
         const idToDelete = event.target.dataset.id;
         try {
-          await fetch(`http://localhost:5678/api/works/${idToDelete}`, {
+           fetch(`http://localhost:5678/api/works/${idToDelete}`, {
             method: "DELETE",
             headers: {
               Accept: "*/*",
@@ -151,12 +148,12 @@ if (token) {
           }).then(response => {
             // Handle the response and update the UI as needed
             if (response.ok) {
+              work = work.filter(work => work.id !== Number(idToDelete));
               // Project was deleted successfully, update the UI in the modal
               const projectElement = document.querySelector(`#figure${idToDelete}`);
               projectElement.remove();
               const projectElement2 = document.querySelector(`#figureModal${idToDelete}`);
               projectElement2.remove();
-              work = work.filter(work => work.id !== idToDelete);
 
             }
            }) ;
@@ -165,11 +162,6 @@ if (token) {
         }
       }
     });
-
-
-
-
-
 
 
     const hrLine = document.createElement("hr");
@@ -200,9 +192,10 @@ if (token) {
           projectIdsToDelete.push(projectId);
         }
       });
-    
-      // Delete projects one by one
+    if (window.confirm("Attention ! cette action est irréversible. Voulez-vous supprimer toute la galerie?")) {
       deleteAllProjects(projectIdsToDelete);
+      closeModal();
+    } 
     });
     
     
@@ -239,8 +232,14 @@ if (token) {
           const allSuccessful = responses.every(response => response.ok);
     
           if (allSuccessful) {
-            console.log('All projects were deleted.');
-            // Perform any other required UI updates
+            projectIds.forEach(projectId => {
+              const projectElement = document.querySelector(`#figure${projectId}`);
+              if (projectElement) projectElement.remove();
+    
+              const projectElement2 = document.querySelector(`#figureModal${projectId}`);
+              if (projectElement2) projectElement2.remove();
+              work = work.filter(work => work.id !== Number(projectId));
+            });
             
           } else {
             console.error('Failed to delete all projects.');
@@ -395,7 +394,7 @@ if (token) {
         const newproject = data;
         work.push(newproject);
         updatePageContent();
-        //openModal();
+        openModal();
         
       });
 
