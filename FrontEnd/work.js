@@ -317,6 +317,7 @@ if (token) {
     fileInput.setAttribute("type", "file");
     fileInput.setAttribute("id", "fileInput");
     fileInput.style.display = "none";
+    fileInput.accept = ".jpeg, .jpg, .png";
     
     fileInput.addEventListener("change", function (event) {
       const selectedFile = event.target.files[0];
