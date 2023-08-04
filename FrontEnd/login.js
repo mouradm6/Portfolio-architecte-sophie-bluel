@@ -23,7 +23,11 @@ function loginTest(){
                 window.location.href='index.html'
             }else{
                 const message = data.message;
-                alert(message);
+                if(message == "user not found"){
+                alert("Email incorrecte");
+                }else{
+                    alert("Mot de passe incorrecte")
+                }
             }
         });
     });
