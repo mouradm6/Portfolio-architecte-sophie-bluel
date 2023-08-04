@@ -7,8 +7,7 @@ function genererCarteTraveaux(work) {
     const carte = work[i];
     const gallery = document.querySelector(".gallery");
     const carteElement = document.createElement("figure");
-    carteElement.setAttribute("id", 'figure'+carte.id);
-
+    carteElement.setAttribute("id", "figure" + carte.id);
 
     const imageElement = document.createElement("img");
     imageElement.src = carte.imageUrl;
@@ -32,7 +31,7 @@ function genererCarteTraveauxModal(work) {
     const gallery = document.querySelector(".containerProject");
     const carteElement = document.createElement("figure");
     carteElement.className = "figure";
-    carteElement.setAttribute("id", 'figureModal'+carte.id);
+    carteElement.setAttribute("id", "figureModal" + carte.id);
 
     const imageDiv = document.createElement("div");
     imageDiv.className = "photo-container";
@@ -112,6 +111,8 @@ if (token) {
   editButton2.style.display = "block";
   filters.style.display = "none";
   editMode.style.display = "flex";
+  const loginButton = document.getElementById("login");
+  loginButton.innerHTML = "Logout";
 
   const modal = document.getElementById("modal");
   const backgroundElements = document.querySelectorAll("body > *:not(.modal)");
@@ -128,41 +129,42 @@ if (token) {
     h3Title.classList.add("titre");
     h3Title.textContent = "Gallerie photo";
 
-
     const divProject = document.createElement("div");
     divProject.setAttribute("id", "project");
     divProject.classList.add("containerProject");
 
     //deleteProject
-    divProject.addEventListener("click",  function (event) {
+    divProject.addEventListener("click", function (event) {
       if (event.target.classList.contains("delete-icon")) {
         event.preventDefault();
         const idToDelete = event.target.dataset.id;
         try {
-           fetch(`http://localhost:5678/api/works/${idToDelete}`, {
+          fetch(`http://localhost:5678/api/works/${idToDelete}`, {
             method: "DELETE",
             headers: {
               Accept: "*/*",
               Authorization: `Bearer ${token}`,
             },
-          }).then(response => {
+          }).then((response) => {
             // Handle the response and update the UI as needed
             if (response.ok) {
-              work = work.filter(work => work.id !== Number(idToDelete));
+              work = work.filter((work) => work.id !== Number(idToDelete));
               // Project was deleted successfully, update the UI in the modal
-              const projectElement = document.querySelector(`#figure${idToDelete}`);
+              const projectElement = document.querySelector(
+                `#figure${idToDelete}`
+              );
               projectElement.remove();
-              const projectElement2 = document.querySelector(`#figureModal${idToDelete}`);
+              const projectElement2 = document.querySelector(
+                `#figureModal${idToDelete}`
+              );
               projectElement2.remove();
-
             }
-           }) ;
+          });
         } catch (error) {
           console.error("Error occurred while deleting project:", error);
         }
       }
     });
-
 
     const hrLine = document.createElement("hr");
     hrLine.classList.add("line");
@@ -182,26 +184,28 @@ if (token) {
     deleteButton.setAttribute("type", "button");
     deleteButton.textContent = "Supprimer la galerie";
     deleteButton.addEventListener("click", () => {
-      const allProjectButtons = document.querySelectorAll('.delete-icon');
+      const allProjectButtons = document.querySelectorAll(".delete-icon");
       const projectIdsToDelete = [];
-    
+
       // Extract the project IDs from the buttons associated with each project
-      allProjectButtons.forEach(button => {
+      allProjectButtons.forEach((button) => {
         const projectId = button.dataset.id;
         if (projectId) {
           projectIdsToDelete.push(projectId);
         }
       });
-    if (window.confirm("Attention ! cette action est irréversible. Voulez-vous supprimer toute la galerie?")) {
-      deleteAllProjects(projectIdsToDelete);
-      closeModal();
-    } 
+      if (
+        window.confirm(
+          "Attention ! cette action est irréversible. Voulez-vous supprimer toute la galerie?"
+        )
+      ) {
+        deleteAllProjects(projectIdsToDelete);
+        closeModal();
+      }
     });
-    
-    
 
     const modal = document.getElementById("modal");
-    modal.innerHTML = ""; 
+    modal.innerHTML = "";
     modal.appendChild(closeButton);
     modal.appendChild(h3Title);
     modal.appendChild(divProject);
@@ -214,43 +218,46 @@ if (token) {
     genererCarteTraveauxModal(work);
   }
   // Function to delete all projects one by one
-    function deleteAllProjects(projectIds) {
-      const deletePromises = projectIds.map(projectId =>
-        fetch(`http://localhost:5678/api/works/${projectId}`, {
-          method: "DELETE",
-            headers: {
-              Accept: "*/*",
-              Authorization: `Bearer ${token}`,
-          },
-        })
-      );
-    
-      // Wait for all delete requests to complete
-      Promise.all(deletePromises)
-        .then(responses => {
-          // Check if all responses were successful
-          const allSuccessful = responses.every(response => response.ok);
-    
-          if (allSuccessful) {
-            projectIds.forEach(projectId => {
-              const projectElement = document.querySelector(`#figure${projectId}`);
-              if (projectElement) projectElement.remove();
-    
-              const projectElement2 = document.querySelector(`#figureModal${projectId}`);
-              if (projectElement2) projectElement2.remove();
-              work = work.filter(work => work.id !== Number(projectId));
-            });
-            
-          } else {
-            console.error('Failed to delete all projects.');
-          }
-        })
-        .catch(error => {
-          // Handle any network or other errors
-          console.error('An error occurred while deleting projects.', error);
-        });
-    }
-  
+  function deleteAllProjects(projectIds) {
+    const deletePromises = projectIds.map((projectId) =>
+      fetch(`http://localhost:5678/api/works/${projectId}`, {
+        method: "DELETE",
+        headers: {
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    );
+
+    // Wait for all delete requests to complete
+    Promise.all(deletePromises)
+      .then((responses) => {
+        // Check if all responses were successful
+        const allSuccessful = responses.every((response) => response.ok);
+
+        if (allSuccessful) {
+          projectIds.forEach((projectId) => {
+            const projectElement = document.querySelector(
+              `#figure${projectId}`
+            );
+            if (projectElement) projectElement.remove();
+
+            const projectElement2 = document.querySelector(
+              `#figureModal${projectId}`
+            );
+            if (projectElement2) projectElement2.remove();
+            work = work.filter((work) => work.id !== Number(projectId));
+          });
+        } else {
+          console.error("Failed to delete all projects.");
+        }
+      })
+      .catch((error) => {
+        // Handle any network or other errors
+        console.error("An error occurred while deleting projects.", error);
+      });
+  }
+
   // ouvrir la modal
   function openModal() {
     modal.style.display = "flex";
@@ -310,6 +317,7 @@ if (token) {
     fileInput.setAttribute("type", "file");
     fileInput.setAttribute("id", "fileInput");
     fileInput.style.display = "none";
+    
     fileInput.addEventListener("change", function (event) {
       const selectedFile = event.target.files[0];
       if (selectedFile) {
@@ -317,6 +325,9 @@ if (token) {
         const background = document.getElementById("ajout-photo");
         if (background) {
           background.style.backgroundImage = `url(${imageURL})`;
+          background.addEventListener("click", function () {
+            fileInput.click();
+          });
           document.querySelector(".image1").style.display = "none";
           document.querySelector(".add-photo-btn").style.display = "none";
           document.querySelector(".description").style.display = "none";
@@ -371,9 +382,11 @@ if (token) {
     submitButton.setAttribute("type", "submit");
     submitButton.textContent = "Valider";
     submitButton.addEventListener("click", function () {
+
       const file = fileInput.files[0];
       const title = titreInput.value;
       const category = selectMenu.value;
+      if(file && title){
       const formData = new FormData();
       formData.append("image", file);
       formData.append("title", title);
@@ -389,25 +402,31 @@ if (token) {
       };
 
       fetch("http://localhost:5678/api/works", requestOptions)
-      .then(reponse => reponse.json())
-      .then(data => {
-        const newproject = data;
-        work.push(newproject);
-        updatePageContent();
-        openModal();
-        
-      });
+        .then((reponse) => reponse.json())
+        .then((data) => {
+          const newproject = data;
+          work.push(newproject);
+          updatePageContent();
+          openModal();
+        });
+      }else{
+        if(!file){
+        alert("veuillez selectionner une image");
+        }
+        if(!title){
+          alert("veuillez inserer un titre");
+        }
+      }
 
-      function updatePageContent(){
+      function updatePageContent() {
         const gallery = document.querySelector(".gallery");
-        gallery.innerHTML = '';
+        gallery.innerHTML = "";
         genererCarteTraveaux(work);
       }
     });
 
-    
     const modal = document.getElementById("modal");
-    modal.innerHTML = ""; 
+    modal.innerHTML = "";
     modal.appendChild(backButton);
     modal.appendChild(closeButton);
     modal.appendChild(h3Title);
