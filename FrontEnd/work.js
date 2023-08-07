@@ -18,6 +18,8 @@ function genererCarteTraveaux(work) {
 
     gallery.appendChild(carteElement);
 
+    
+
     carteElement.appendChild(imageElement);
     carteElement.appendChild(titleElement);
   }
